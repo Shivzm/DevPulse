@@ -14,43 +14,286 @@
     <!-- Ambient background grid -->
     <div class="cyber-grid-bg"></div>
 
-    <main class="container">
-      <!-- Hero Header with Split Text Animation -->
-      <header class="hero">
-        <h1 class="split-text">SYSTEMS OPERATIONAL</h1>
-        <p class="subtitle">Global infrastructure pulse tracking index</p>
-      </header>
+    <!-- PREMIUM NAVBAR -->
+    <nav class="premium-nav">
+      <div class="nav-container">
+        <div class="nav-brand"><span class="brand-icon">⚡</span> DevPulse</div>
 
-      <!-- Bento Grid: Service Status Cards -->
-      <section class="services-section">
-        <h2 class="section-title">Service Status</h2>
-        <div
-          id="services-grid"
-          class="bento-grid"
-          aria-label="Service status monitors"
-        ></div>
+        <nav class="premium-nav">
+          <div class="nav-container">
+            <div class="nav-brand">
+              <span class="brand-icon">⚡</span> DevPulse
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+
+            <div class="nav-links">
+              <a href="#" class="active shery-link" data-target="view-dashboard"
+                >Dashboard</a
+              >
+              <a href="#" class="shery-link" data-target="view-metrics"
+                >Metrics Map</a
+              >
+              <a href="#" class="shery-link" data-target="view-history"
+                >Incident History</a
+              >
+              <a href="#" class="shery-link" data-target="view-admin"
+                >Admin Login</a
+              >
+            </div>
+          </div>
+        </nav>
+
+        <div class="nav-links">
+          <a href="#" class="active shery-link" data-target="view-dashboard"
+            >Dashboard</a
+          >
+          <a href="#" class="shery-link" data-target="view-metrics"
+            >Metrics Map</a
+          >
+          <a href="#" class="shery-link" data-target="view-history"
+            >Incident History</a
+          >
+          <a href="#" class="shery-link" data-target="view-admin"
+            >Admin Login</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      <section id="view-dashboard" class="view-section active">
+        <header class="hero">
+          <h1 class="split-text">SYSTEMS OPERATIONAL</h1>
+          <p class="subtitle">Global infrastructure pulse tracking index</p>
+        </header>
+
+        <section class="services-section">
+          <h2 class="section-title">Service Status</h2>
+          <div id="services-grid" class="bento-grid"></div>
+        </section>
+
+        <section class="timeline-section">
+          <h2 class="section-title">Recent Activity</h2>
+          <div class="timeline-wrapper">
+            <div class="timeline-spine"></div>
+            <div id="timeline-events" class="timeline-events"></div>
+          </div>
+        </section>
       </section>
 
-      <!-- Timeline: Incident History -->
-      <section class="timeline-section">
-        <h2 class="section-title">Incident History</h2>
-        <div class="timeline-wrapper">
-          <div class="timeline-spine"></div>
-          <div
-            id="timeline-events"
-            class="timeline-events"
-            aria-label="Historical incidents"
-          ></div>
+      <section id="view-metrics" class="view-section">
+        <header class="hero" style="margin-bottom: 2rem">
+          <h1 style="font-size: 3rem">GLOBAL TOPOLOGY</h1>
+          <p class="subtitle">Live geographic node routing</p>
+        </header>
+        <div class="glass-panel text-center" style="padding: 100px 20px">
+          <div class="radar-ping"></div>
+          <p style="color: var(--text-muted); margin-top: 2rem">
+            Compiling telemetry data from edge servers...
+          </p>
         </div>
       </section>
 
-      <!-- Loading state indicator -->
-      <div
-        id="loading-indicator"
-        class="loading-pulse"
-        aria-live="polite"
-        role="status"
-      ></div>
+      <section id="view-history" class="view-section">
+        <header class="hero" style="margin-bottom: 2rem">
+          <h1 style="font-size: 3rem">ARCHIVE LOGS</h1>
+          <p class="subtitle">Historical 90-day incident reports</p>
+        </header>
+        <div class="glass-panel">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Incident Title</th>
+                <th>Impact</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr>
+                <td
+                  colspan="4"
+                  style="text-align: center; color: var(--text-muted)"
+                >
+                  Syncing historical logs...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-admin" class="view-section">
+        <div class="admin-login-container">
+          <div
+            class="glass-panel"
+            style="
+              max-width: 450px;
+              margin: 100px auto;
+              text-align: center;
+              position: relative;
+            "
+          >
+            <div id="admin-auth-form">
+              <span
+                class="brand-icon"
+                style="font-size: 3rem; display: block; margin-bottom: 1rem"
+                >⚡</span
+              >
+              <h2 style="margin-bottom: 0.5rem">Restricted Access</h2>
+              <p
+                style="
+                  color: var(--text-muted);
+                  margin-bottom: 2rem;
+                  font-size: 0.9rem;
+                "
+              >
+                Authorized engineering personnel only.
+              </p>
+
+              <div
+                class="input-wrapper"
+                style="position: relative; margin-bottom: 1rem"
+              >
+                <input
+                  type="password"
+                  id="admin-key-input"
+                  class="premium-input"
+                  placeholder="Enter Authorization Key"
+                  style="margin-bottom: 0; padding-right: 3rem"
+                />
+                <button
+                  type="button"
+                  id="toggle-eye-btn"
+                  class="eye-btn"
+                  aria-label="Toggle password visibility"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="eye-icon"
+                  >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+
+              <p
+                id="login-error-msg"
+                style="
+                  color: var(--status-offline);
+                  font-size: 0.85rem;
+                  margin-bottom: 1rem;
+                  display: none;
+                "
+              >
+                Invalid Key.
+              </p>
+
+              <button id="auth-submit-btn" class="premium-btn">
+                Authenticate
+              </button>
+            </div>
+
+            <div
+              id="admin-control-panel"
+              style="display: none; text-align: left"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  border-bottom: 1px solid var(--border-color);
+                  padding-bottom: 1rem;
+                  margin-bottom: 1.5rem;
+                "
+              >
+                <h3 style="color: var(--status-operational)">
+                  Commander Uplink Active
+                </h3>
+                <button
+                  id="logout-btn"
+                  style="
+                    background: none;
+                    border: none;
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    text-decoration: underline;
+                  "
+                >
+                  Disconnect
+                </button>
+              </div>
+
+              <p
+                style="
+                  color: var(--text-secondary);
+                  margin-bottom: 1.5rem;
+                  font-size: 0.9rem;
+                "
+              >
+                Welcome back. Override controls are now unlocked.
+              </p>
+
+              <div style="display: grid; gap: 1rem">
+                <button
+                  class="premium-btn"
+                  style="
+                    background: rgba(0, 229, 255, 0.1);
+                    color: var(--status-operational);
+                    border: 1px solid var(--status-operational);
+                  "
+                >
+                  Force System Ping
+                </button>
+                <button
+                  class="premium-btn"
+                  style="
+                    background: rgba(255, 165, 0, 0.1);
+                    color: var(--status-degraded);
+                    border: 1px solid var(--status-degraded);
+                  "
+                >
+                  Trigger Maintenance Mode
+                </button>
+                <button
+                  class="premium-btn"
+                  style="
+                    background: rgba(255, 107, 107, 0.1);
+                    color: var(--status-offline);
+                    border: 1px solid var(--status-offline);
+                  "
+                >
+                  Purge Latency Cache
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="loading-indicator" class="loading-pulse"></div>
+
+      <div id="details-modal" class="modal-overlay">
+        <div class="modal-box">
+          <button class="modal-close">&times;</button>
+          <div id="modal-content"></div>
+        </div>
+      </div>
     </main>
 
     <script src="app.js"></script>

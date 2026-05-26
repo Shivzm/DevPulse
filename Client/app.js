@@ -197,6 +197,36 @@ function createTimelineEvent(incident, index) {
 }
 
 /**
+ * Sets up Intersection Observers for scroll-triggered animations
+ */
+function setupScrollObservers() {
+  const spine = document.querySelector(".timeline-spine");
+  const events = document.querySelectorAll(".timeline-event");
+
+  const observerOptions = {
+    threshold: 0.15,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const timelineObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // Reveal the card
+        entry.target.classList.add("reveal");
+
+        // Drop down the vertical baseline
+        if (spine) spine.classList.add("revealed");
+
+        // Unobserve after revealing to prevent re-animating
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  events.forEach((event) => timelineObserver.observe(event));
+}
+
+/**
  * Formats duration in milliseconds to human-readable string
  * @param {number} ms - Duration in milliseconds
  * @returns {string} Formatted duration
@@ -310,6 +340,256 @@ function renderTimeline(incidents) {
     const card = createTimelineEvent(incident, index);
     container.appendChild(card);
   });
+
+  setupScrollObservers();
+}
+
+/**
+ * Splits target text into spans for kinetic typography stagger effect
+ */
+function initTextEffects() {
+  const textTarget = document.querySelector(".split-text");
+  if (!textTarget) return;
+
+  const content = textTarget.textContent;
+  textTarget.innerHTML = "";
+
+  content.split("").forEach((char, idx) => {
+    const span = document.createElement("span");
+    // Preserve spaces
+    span.textContent = char === " " ? "\u00A0" : char;
+    // Sync with CSS animation delay
+    span.style.animationDelay = `${idx * 0.04}s`;
+    textTarget.appendChild(span);
+  });
+}
+
+/**
+ * 1. Initializes the Solid Block Scroll Hover Effect on Navbar
+ */
+function initSheryNavEffect() {
+    const links = document.querySelectorAll('.shery-link');
+    
+    links.forEach(link => {
+        const text = link.innerText;
+        link.innerHTML = ''; // Clear original text
+        
+        // The master wrapper that will physically move up
+        const scrollWrap = document.createElement('div');
+        scrollWrap.className = 'word-scroll-wrap';
+        
+        // The top word (default grey)
+        const topWord = document.createElement('span');
+        topWord.className = 'word-top';
+        topWord.innerText = text;
+        
+        // The bottom word (glowing green)
+        const bottomWord = document.createElement('span');
+        bottomWord.className = 'word-bottom';
+        bottomWord.innerText = text;
+        
+        scrollWrap.appendChild(topWord);
+        scrollWrap.appendChild(bottomWord);
+        link.appendChild(scrollWrap);
+    });
+}
+
+/**
+ * 2. Setup Click Handlers for Modal
+ */
+function setupClickInteractions() {
+  const modal = document.getElementById("details-modal");
+  const closeBtn = document.querySelector(".modal-close");
+  const content = document.getElementById("modal-content");
+
+  // Close modal logic
+  const closeModal = () => modal.classList.remove("active");
+  closeBtn.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Listen for clicks on the parent grid/timeline (Event Delegation)
+  document.addEventListener("click", (e) => {
+    const card = e.target.closest(".service-card");
+    const event = e.target.closest(".timeline-event");
+
+    if (card) {
+      // Populate Service Modal
+      const serviceName = card.querySelector(".service-name").innerText;
+      const status = card.querySelector(".status-indicator").title;
+      content.innerHTML = `
+                <h3 class="modal-title">${serviceName}</h3>
+                <p style="color: var(--text-muted)">Detailed metrics and history for this infrastructure block.</p>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                    <strong>Current Status:</strong> <span style="text-transform: uppercase;">${status}</span>
+                </div>
+            `;
+      modal.classList.add("active");
+    }
+
+    if (event) {
+      // Populate Incident Modal
+      const title = event.querySelector(".timeline-title").innerText;
+      const desc = event.querySelector(".timeline-description").innerText;
+      content.innerHTML = `
+                <h3 class="modal-title">${title}</h3>
+                <p style="color: var(--text-muted)">${desc}</p>
+                <div style="margin-top: 1.5rem; padding: 1rem; border-left: 3px solid var(--status-degraded); background: rgba(255,255,255,0.03);">
+                    <strong>Action Required:</strong> Team is actively monitoring logs.
+                </div>
+            `;
+      modal.classList.add("active");
+    }
+  });
+}
+
+/**
+ * Single Page Application (SPA) Router
+ * Handles navigation without reloading the page
+ */
+function initRouter() {
+    const navLinks = document.querySelectorAll('.nav-links a');
+    const views = document.querySelectorAll('.view-section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault(); // Stop the "#" from jumping the page
+            
+            // Because of the Shery effect, we have to get the target from the parent 'a' tag
+            const targetId = link.getAttribute('data-target') || link.closest('a').getAttribute('data-target');
+            if (!targetId) return;
+
+            // 1. Remove active state from all nav links
+            navLinks.forEach(l => l.classList.remove('active'));
+            // 2. Add active state to clicked link
+            link.classList.add('active');
+
+            // 3. Hide all views, show target view
+            views.forEach(view => {
+                view.classList.remove('active');
+                if (view.id === targetId) {
+                    view.classList.add('active');
+                    // Optional: re-trigger text split animation on the new page's hero
+                    initTextEffects(); 
+                }
+            });
+        });
+    });
+}
+
+/**
+ * 4. Admin Authentication & UI Logic
+ */
+function initAdminAuth() {
+    const keyInput = document.getElementById('admin-key-input');
+    const toggleEyeBtn = document.getElementById('toggle-eye-btn');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const errorMsg = document.getElementById('login-error-msg');
+    
+    const authForm = document.getElementById('admin-auth-form');
+    const controlPanel = document.getElementById('admin-control-panel');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // SVGs for the Eye Icon states
+    const iconEyeOpen = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const iconEyeClosed = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`;
+
+    // Toggle Password Visibility
+    toggleEyeBtn.addEventListener('click', () => {
+        if (keyInput.type === 'password') {
+            keyInput.type = 'text';
+            toggleEyeBtn.innerHTML = iconEyeClosed;
+        } else {
+            keyInput.type = 'password';
+            toggleEyeBtn.innerHTML = iconEyeOpen;
+        }
+    });
+
+    // Handle Authentication Submit
+    const authenticate = async () => {
+        const key = keyInput.value.trim();
+        if (!key) return;
+
+        // Visual loading state
+        submitBtn.innerText = 'Verifying...';
+        submitBtn.style.opacity = '0.7';
+        errorMsg.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Login Success: Swap UI
+                authForm.style.display = 'none';
+                controlPanel.style.display = 'block';
+                keyInput.value = ''; // Clear the password for security
+            } else {
+                // Login Failed
+                errorMsg.innerText = data.error || 'Access Denied.';
+                errorMsg.style.display = 'block';
+                
+                // Add a quick shake animation for failure feedback
+                keyInput.style.transform = 'translateX(10px)';
+                setTimeout(() => keyInput.style.transform = 'translateX(-10px)', 100);
+                setTimeout(() => keyInput.style.transform = 'translateX(0)', 200);
+            }
+        } catch (error) {
+            errorMsg.innerText = 'Server communication error.';
+            errorMsg.style.display = 'block';
+        } finally {
+            submitBtn.innerText = 'Authenticate';
+            submitBtn.style.opacity = '1';
+        }
+    };
+
+    submitBtn.addEventListener('click', authenticate);
+    
+    // Allow pressing "Enter" to submit
+    keyInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') authenticate();
+    });
+
+    // Handle Logout
+    logoutBtn.addEventListener('click', () => {
+        controlPanel.style.display = 'none';
+        authForm.style.display = 'block';
+        
+        // Reset eye icon to default closed
+        keyInput.type = 'password';
+        toggleEyeBtn.innerHTML = iconEyeOpen;
+    });
+}
+
+/**
+ * Mobile Navigation Menu Logic
+ */
+function initMobileMenu() {
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+    const links = document.querySelectorAll('.nav-links a');
+
+    if (!menuBtn || !navLinks) return;
+
+    // Toggle menu open/close
+    menuBtn.addEventListener('click', () => {
+        menuBtn.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+
+    // Automatically close the menu when a link is clicked
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            menuBtn.classList.remove('active');
+            navLinks.classList.remove('active');
+        });
+    });
 }
 
 /**
@@ -361,7 +641,13 @@ function startAutoRefresh() {
  * Entry point - Initialize when DOM is ready
  */
 document.addEventListener("DOMContentLoaded", () => {
+  initTextEffects();
   initializeDashboard();
+  initSheryNavEffect();
+  initRouter();
+  initAdminAuth();
+  initMobileMenu();
+  setupClickInteractions();
   startAutoRefresh();
 });
 
